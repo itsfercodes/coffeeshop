@@ -2,22 +2,25 @@ package main
 
 import (
 	"coffeeshop/coffee"
-	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Println("Printing the list of coffees available")
-	coffees, err := coffee.GetCoffees()
+	r := gin.Default()
+	r.GET("/ping", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to the CoffeShop",
+		})
+	})
 
-	if err != nil {
-		fmt.Println("Error while getting coffeelist ", err)
-		return
-	}
+	r.GET("/coffee", getCoffee)
+	r.Run(":8081")
 
-	// Prints all coffees available
-	for _, element := range coffees.List {
-		fmt.Printf("%s for $%v\n", element.Name, element.Price)
-	}
+}
 
-	fmt.Println("Is Latte Available? ", coffee.IsCoffeeAvailable("Latte"))
+func getCoffee(ctx *gin.Context) {
+	coffeelist, _ := coffee.GetCoffees()
+	ctx.String(http.StatusOK, "%s", coffeelist)
 }
